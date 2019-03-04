@@ -1,7 +1,7 @@
 # node-shopify-stock-update
 Node JS function to update stock on shopify. 
 
-**environment variables**\
+**environment variables**
 
 SHOPIFY_SHOPNAME: Shopify name like: myshop.myshopify.com\
 SHOPIFY_APIKEY: Generated Private App API Key\
