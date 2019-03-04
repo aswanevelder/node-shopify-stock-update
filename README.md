@@ -1,15 +1,15 @@
 # node-shopify-stock-update
 Node JS function to update stock on shopify. 
 
-# environment variables
-SHOPIFY_SHOPNAME: Shopify name like: myshop.myshopify.com
-SHOPIFY_APIKEY: Generated Private App API Key
-SHOPIFY_PASSWORD: Generated Private App API Password
-SHOPIFY_DBNAME: MongoDB Database name
-SHOPIFY_COLLECTIONNAME: MongoDB Database Collection name for Shopify Stock
-STORE_COLLECTIONNAME: MongoDB Database Collection name for Store Stock
+**environment variables**
+SHOPIFY_SHOPNAME: Shopify name like: myshop.myshopify.com\
+SHOPIFY_APIKEY: Generated Private App API Key\
+SHOPIFY_PASSWORD: Generated Private App API Password\
+SHOPIFY_DBNAME: MongoDB Database name\
+SHOPIFY_COLLECTIONNAME: MongoDB Database Collection name for Shopify Stock\
+STORE_COLLECTIONNAME: MongoDB Database Collection name for Store Stock\
 
-# mongo db Shopify Stock table definition
+**mongo db Shopify Stock table definition**
 ```json
 {
     "_id": {
@@ -40,7 +40,7 @@ STORE_COLLECTIONNAME: MongoDB Database Collection name for Store Stock
     "status": "SHOPIFY"
 }
 ```
-# mongo db Store Stock table definition
+**mongo db Store Stock table definition**
 ```json
 {
     "sku": {
