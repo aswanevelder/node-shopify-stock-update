@@ -15,9 +15,6 @@ STORE_COLLECTIONNAME: MongoDB Database Collection name for Store Stock
 
 ```json
 {
-    "_id": {
-        "$oid": "5c7cfcf321b1314355ae6325"
-    },
     "sku": "00000",
     "site_productid": {
         "$numberDouble": "0000000"
