@@ -1,0 +1,29 @@
+{
+  "name": "shopify-stock-update",
+  "version": "1.0.0",
+  "description": "Node JS function to update stock on shopify.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aswanevelder/node-shopify-stock-update.git"
+  },
+  "keywords": [
+    "node",
+    "aws",
+    "shopify",
+    "update"
+  ],
+  "author": "Anton Swanevelder",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aswanevelder/node-shopify-stock-update/issues"
+  },
+  "homepage": "https://github.com/aswanevelder/node-shopify-stock-update#readme",
+  "dependencies": {
+    "mongodb": "^3.1.13",
+    "shopify-api-node": "^2.18.1"
+  }
+}
