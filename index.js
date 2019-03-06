@@ -2,12 +2,11 @@ const MongoClient = require('mongodb').MongoClient;
 const Shopify = require('shopify-api-node');
 const environment = require('./environment');
 
-const SHOPIFY_LIMIT = 10;
+const SHOPIFY_LIMIT = 20;
 let shopifyCollection;
 let storeCollection;
 let shopify;
 let shopifyLocationId;
-let limiterInterval;
 
 exports.handler = function (event, context, callback) {
     //Initialize Shopify
@@ -27,15 +26,22 @@ exports.handler = function (event, context, callback) {
             console.log(`Location ID: ${shopifyLocationId}`);
 
             //Initialize MongoDB
-            MongoClient.connect(environment.SHOPIFY_DBURL, function (err, client) {
+            MongoClient.connect(environment.SHOPIFY_DBURL, async function (err, client) {
                 if (!err) {
                     console.log("Connected successfully to server");
-                    const db = client.db(environment.SHOPIFY_DBNAME);
-                    shopifyCollection = db.collection(environment.SHOPIFY_COLLECTIONNAME);
-                    storeCollection = db.collection(environment.STORE_COLLECTIONNAME);
+                    const db = await client.db(environment.SHOPIFY_DBNAME);
+                    shopifyCollection = await db.collection(environment.SHOPIFY_COLLECTIONNAME);
+                    storeCollection = await db.collection(environment.STORE_COLLECTIONNAME);
 
                     //Get Shopify Collection records
-                    limiterInterval = setInterval(() => updateRecords(client), 10000);
+                    const dataCursor = shopifyCollection.find({ "status": "SHOPIFY" });
+                    await updateRecords(client, dataCursor);
+
+                    if (!await dataCursor.hasNext()) {
+                        console.log('All records processed');
+                        //Wait 15 seconds for any async write processes before closing.
+                        setTimeout(() => client.close(), 15000);
+                    }
                 }
                 else
                     console.error(err);
@@ -44,20 +50,18 @@ exports.handler = function (event, context, callback) {
     });
 };
 
-async function updateRecords(client) {
+async function updateRecords(client, dataCursor) {
     try {
-        const dataCursor = shopifyCollection.find({ "status": "SHOPIFY" });
-        const cursorCount = await dataCursor.count();
-        console.log('Records remaining: ' + cursorCount);
         for (let x = 0; x < SHOPIFY_LIMIT; x++) {
             if (await dataCursor.hasNext()) {
                 const record = await dataCursor.next();
                 await updateShopify(record);
             }
-            else {
-                clearInterval(limiterInterval);
-                await client.close();
-            }
+        }
+
+        if (await dataCursor.hasNext()) {
+            console.log('Pausing for Rate Limiter...')
+            setTimeout(() => updateRecords(client, dataCursor), 10000);
         }
     }
     catch (err) {
@@ -105,7 +109,7 @@ async function updateShopify(shopify_record) {
             }
         }
         else
-            console.log('Invalid Record' + data.sku);
+            console.log('Invalid Record' + shopify_record.sku);
     }
     catch (e) {
         console.log(e);
@@ -124,7 +128,7 @@ async function updateDatabase(sku, store_record, status) {
                     status: status
                 }
             });
-            console.log(`db updated: ${sku}`);
+            console.log(`${environment.SHOPIFY_COLLECTIONNAME} updated: ${sku}`);
         }
         else {
             await shopifyCollection.updateMany({ sku: `${sku}` }, {
@@ -156,7 +160,7 @@ async function updateShopifyPrice(id, price, comparePrice, callback) {
         await shopify.productVariant.update(id, {
             price: price,
             compare_at_price: comparePrice
-        })
+        });
         callback();
     }
     catch(err) {
@@ -221,7 +225,9 @@ async function updateStock(shopify_record, store_record, sku, callback) {
             callback();
         }
         catch(err) {
-            callback(err)
+            callback(err);
         }
     }
 }
+
+exports.handler();
